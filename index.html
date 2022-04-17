@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        html{
+            box-sizing: border-box;
+        }
+        *, *:before, *:after{
+            box-sizing: inherit;
+        }
+        body{
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            background-color: #000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .video-player{
+            flex:1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        .lesson-controls{
+            height: 100px;
+            width: 100%;
+            background: grey;
+        }
+        .video{
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .player-controls{
+            display: flex;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            transform:  translateY(100%);
+            transition: all .5s;
+            flex-wrap: wrap;
+            background: rgba(0, 0, 0, .25);
+        }
+        .video-player:hover .player-controls{
+            transform: translateY(0);
+        }
+        .play-button{
+            width: 5%;
+            border: none;
+            background: black;
+            color: #fff;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .time{
+            color: #fff;
+            font-size: 1rem;
+            width: 15%;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .video-progress{
+            position: relative;
+            display: flex;
+            width: 100%;
+            height: 5px;
+            
+            background-color: grey;
+            cursor: pointer;
+        }
+        .video-progress-filled{
+            transition: all .5s;
+            background-color: orangered;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="video-player">
+        <video class="video" src="video.mp4"></video>
+        <div class="player-controls">
+            <div class="video-progress">
+                <div class="video-progress-filled">
+
+                </div>
+            </div>
+            <button class="play-button" title="play">▶</button>
+            <input style="width: 15%;" type="range" class="volume" min="0" max="1" step="0.01" value="1">
+            <div class="time">
+                <span class="current">00</span> / <span class="duration">0.00</span>
+            </div>
+        </div>
+    </div>
+    <div class="lesson-controls">
+
+    </div>
+    <script>
+        const videoPlayer = document.querySelector(".video-player");
+        const video = videoPlayer.querySelector(".video");
+        // const playerControls = videoPlayer.querySelector("player-controls");
+        const playBtn = videoPlayer.querySelector(".play-button");
+        const volume = videoPlayer.querySelector(".volume");
+        const currentTimeElement = videoPlayer.querySelector(".current")
+        const durationTimeElement = videoPlayer.querySelector(".duration");
+        const progress = videoPlayer.querySelector(".video-progress");
+        const progressBar = videoPlayer.querySelector(".video-progress-filled");
+        //event
+        //play-pause
+        playBtn.addEventListener("click", (e)=>{
+            if (video.paused) {
+                video.play()
+                e.target.textContent = '❚❚'
+            } else {
+                video.pause()
+                e.target.textContent = '▶'
+            }
+        });
+        //volume
+        volume.addEventListener("mousemove",(e)=>{
+            video.volume = e.target.value
+        });
+        //current time and duration
+        const currentTime = ()=>{
+            let currentMinutes = Math.floor(video.currentTime/60);
+            let currentSeconds = Math.floor(video.currentTime - currentMinutes*60);
+            let durationMinutes = Math.floor(video.duration/60);
+            let durationSeconds = Math.floor(video.duration -durationMinutes*60);
+            
+            //show time
+            currentTimeElement.textContent = `${currentMinutes<10?"0"+currentMinutes:currentMinutes}:${currentSeconds<10?"0"+currentSeconds:currentSeconds}`;
+            durationTimeElement.textContent = `${durationMinutes<10?"0"+durationMinutes:durationMinutes}:${durationSeconds<10?"0"+durationSeconds:durationSeconds}`;      
+        }
+        //add time
+        video.addEventListener("timeupdate", currentTime)
+        //add progress
+        video.addEventListener("timeupdate", ()=>{
+            const percentage = (video.currentTime/video.duration)*100;
+            progressBar.style.width = percentage + "%";
+        })
+        //click change progress
+        progress.addEventListener("click", (e)=>{
+            const progressTime = (e.offsetX/progress.offsetWidth)*video.duration;
+            video.currentTime = progressTime;
+        })
+    </script>
+</body>
+</html>
